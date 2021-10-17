@@ -91,6 +91,7 @@ class WS2801Pixels(object):
         actually change the pixel colors.
         """
         print("SHOW")
+        print(self._colors)
         sys.stdout.flush()
         if(self._brightness < 1.0):
             for i in range(self._offset, self._count):
@@ -190,6 +191,7 @@ class WS2801Pixels(object):
     
     def turn_on_all(self):
         self.store_colors([646464])
+        print(self._colors)
         for n in range(self._offset, self._count):
             self.set_pixel_rgb(n, self._colors[n*3], self._colors[n*3+1], self._colors[n*3+2])
         if self._auto_write:
