@@ -22,7 +22,6 @@
 import time
 import copy
 import Adafruit_GPIO.SPI as SPI
-import sys
 
 
 def RGB_to_color(r, g, b):
@@ -188,8 +187,6 @@ class WS2801Pixels(object):
             self.show()
     
     def turn_on_all(self):
-        print(self.colors)
-        sys.stdout.flush()
         for n in range(self._offset, self._count):
             self.set_pixel_rgb(n, 100, 100, 100)
         if self._auto_write:
