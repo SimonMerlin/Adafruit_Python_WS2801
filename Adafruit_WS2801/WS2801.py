@@ -164,28 +164,11 @@ class WS2801Pixels(object):
         self._colors[n*3+1] = g & 0xFF
         self._colors[n*3+2] = b & 0xFF
     
-    def fill(self, color=0):
+    def fill(self, colors=[0]):
         """Set the specified pixel n to the provided 24-bit RGB color.  Note you
         MUST call show() after setting pixels to see the LEDs change color!"""
-        r = color >> 16
-        g = color >> 8
-        b = color
-        # Note the color components will be truncated to 8-bits in the
-        # set_pixel_rgb function call.
-        self.store_colors([color])
-        self.fill_rgb(r, g, b)
-
-    def fill_rgb(self, r, g, b):
-        """Set all pixels to the provided 8-bit red, green, blue component color
-        value.  Note you MUST call show() after setting pixels to see the LEDs
-        change!
-        """
-        self._auto_write = False
-        for i in range(self._offset, self._count):
-            self.set_pixel_rgb(i, r, g, b)
-        self._auto_write = True
-        if self._auto_write:
-            self.show()
+        self.store_colors(colors)
+        self.turn_on_all()
 
     def clear(self):
         """Clear all the pixels to black/off.  Note you MUST call show() after
