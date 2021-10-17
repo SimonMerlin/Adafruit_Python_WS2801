@@ -174,7 +174,7 @@ class WS2801Pixels(object):
         """Clear all the pixels to black/off.  Note you MUST call show() after
         clearing pixels to see the LEDs change!
         """
-        self.fill(0)
+        self.fill([0])
     
     def turn_on(self, n):
         self.set_pixel_rgb(n, self._colors[n*3], self._colors[n*3+1], self._colors[n*3+2])
