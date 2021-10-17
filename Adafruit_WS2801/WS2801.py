@@ -20,7 +20,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 import time
-
+import copy
 import Adafruit_GPIO.SPI as SPI
 
 
@@ -65,12 +65,34 @@ class WS2801Pixels(object):
         self._spi.set_bit_order(SPI.MSBFIRST)
         # Setup buffer for pixel RGB data.
         self._count = count
-        self._pixels = [0]*(count*3)
+        self._pixels = [0]*(count*3) #actual state of each pixels
+        self._colors = [0]*(count*3) #saved color of each pixels
+        self._brightness = 1.0
+        self._auto_write = True
+        self._offset = 0
+    
+    def getBrightness(self):
+        """Overall brightness of the pixel"""
+        return self._brightness
+    
+    def setBrightness(self, brightness):
+        self._brightness = brightness
+        self.show()
+    
+    def getOffset(self):
+        """Overall brightness of the pixel"""
+        return self._offset
+    
+    def setOffset(self, offset):
+        self._offset = offset
 
     def show(self):
         """Push the current pixel values out to the hardware.  Must be called to
         actually change the pixel colors.
         """
+        if(self._brightness < 1.0):
+            for i in range(self._offset, self._count):
+                self.set_pixel_rgb(i, int(self._pixels[i*3]*self._brightness), int(self._pixels[i*3+1]*self._brightness), int(self._pixels[i*3+2]*self._brightness))
         self._spi.write(self._pixels)
         time.sleep(0.002)
 
@@ -102,6 +124,9 @@ class WS2801Pixels(object):
         """Retrieve the 24-bit RGB color of the specified pixel n."""
         r, g, b = self.get_pixel_rgb(n)
         return (r << 16) | (g << 8) | b
+    
+    def color(self):
+        return self._colors
 
     def get_pixel_rgb(self, n):
         """Retrieve the 8-bit red, green, blue component color values of the
@@ -110,55 +135,100 @@ class WS2801Pixels(object):
         assert 0 <= n < self._count, 'Pixel n outside the count of pixels!'
         return self._pixels[n*3], self._pixels[n*3+1], self._pixels[n*3+2]
 
-    def set_pixels(self, color=0):
+    def store_colors(self, colors=[0], show=False):
         """Set all pixels to the provided 24-bit RGB color value.  Note you
         MUST call show() after setting pixels to see the LEDs change!"""
-        for i in range(self._count):
-            self.set_pixel(i, color)
+        for i in range(self._offset, self._count):
+            self.store_pixel_color(i, colors[i%(len(colors))])
+        self._auto_write = True
+        if(show):
+            self._pixels = copy.deepcopy(self._colors)
+            self.show()
+    
+    def store_pixel_color(self, n, color):
+        """Set the specified pixel n to the provided 24-bit RGB color.  Note you
+        MUST call show() after setting pixels to see the LEDs change color!"""
+        r = color >> 16
+        g = color >> 8
+        b = color
+        # Note the color components will be truncated to 8-bits in the
+        # set_pixel_rgb function call.
+        self.store_pixel_color_rgb(n, r, g, b)
+    
+    def store_pixel_color_rgb(self, n, r, g, b):
+        """Store the specified pixel n to the provided 8-bit red, green, blue
+        component values but not display the result
+        """
+        assert 0 <= n < self._count, 'Pixel n outside the count of pixels!'
+        self._colors[n*3]   = r & 0xFF
+        self._colors[n*3+1] = g & 0xFF
+        self._colors[n*3+2] = b & 0xFF
+    
+    def fill(self, color=0):
+        """Set the specified pixel n to the provided 24-bit RGB color.  Note you
+        MUST call show() after setting pixels to see the LEDs change color!"""
+        r = color >> 16
+        g = color >> 8
+        b = color
+        # Note the color components will be truncated to 8-bits in the
+        # set_pixel_rgb function call.
+        self.store_colors([color])
+        self.fill_rgb(r, g, b)
 
-    def set_pixels_rgb(self, r, g, b):
+    def fill_rgb(self, r, g, b):
         """Set all pixels to the provided 8-bit red, green, blue component color
         value.  Note you MUST call show() after setting pixels to see the LEDs
         change!
         """
-        for i in range(self._count):
+        self._auto_write = False
+        for i in range(self._offset, self._count):
             self.set_pixel_rgb(i, r, g, b)
+        self._auto_write = True
+        if self._auto_write:
+            self.show()
 
     def clear(self):
         """Clear all the pixels to black/off.  Note you MUST call show() after
         clearing pixels to see the LEDs change!
         """
-        self.set_pixels(0)
-
-# def colorwipe(pixels, c, delay):
-#     for i in range(len(pixels)):
-#         setpixelcolor(pixels, i, c)
-#         writestrip(pixels)
-#         time.sleep(delay)
-#
-# def Wheel(WheelPos):
-#     if (WheelPos < 85):
-#            return Color(WheelPos * 3, 255 - WheelPos * 3, 0)
-#     elif (WheelPos < 170):
-#            WheelPos -= 85;
-#            return Color(255 - WheelPos * 3, 0, WheelPos * 3)
-#     else:
-#         WheelPos -= 170;
-#         return Color(0, WheelPos * 3, 255 - WheelPos * 3)
-#
-# def rainbowCycle(pixels, wait):
-#     for j in range(256): # one cycle of all 256 colors in the wheel
-#            for i in range(len(pixels)):
-# # tricky math! we use each pixel as a fraction of the full 96-color wheel
-# # (thats the i / strip.numPixels() part)
-# # Then add in j which makes the colors go around per pixel
-# # the % 96 is to make the wheel cycle around
-#               setpixelcolor(pixels, i, Wheel( ((i * 256 / len(pixels)) + j) % 256) )
-#        writestrip(pixels)
-#        time.sleep(wait)
-#
-# colorwipe(ledpixels, Color(255, 0, 0), 0.05)
-# colorwipe(ledpixels, Color(0, 255, 0), 0.05)
-# colorwipe(ledpixels, Color(0, 0, 255), 0.05)
-# while True:
-#     rainbowCycle(ledpixels, 0.00)
+        self.fill(0)
+    
+    def turn_on(self, n):
+        self.set_pixel_rgb(n, self._colors[n*3], self._colors[n*3+1], self._colors[n*3+2])
+        if self._auto_write:
+            self.show()
+    
+    def turn_off(self, n):
+        self.set_pixel(n, 0)
+        if self._auto_write:
+            self.show()
+    
+    def turn_on_all(self):
+        for n in range(self._offset, self._count):
+            self.set_pixel_rgb(n, self._colors[n*3], self._colors[n*3+1], self._colors[n*3+2])
+        if self._auto_write:
+            self.show()
+    
+    def turn_off_all(self):
+        for n in range(self._offset, self._count):
+            self.set_pixel(n, 0)
+        if self._auto_write:
+            self.show()
+    
+    def apply_rainbow(self, shift=0, show=False):
+        self._auto_write = False
+        for j in range(256):
+            for p in range(self._offset, self._count):
+                pos = (p+shift)%256
+                if p < 85:
+                    self.store_pixel_color_rgb(pos, (pos*3), (255-pos*3), 0)
+                elif pos < 170:
+                    pos -= 85
+                    self.store_pixel_color_rgb(pos, (255-pos*3), 0, (pos*3))
+                else:
+                    pos -= 170
+                    self.store_pixel_color_rgb(pos, 0, (pos*3), (255-pos*3))
+        self._auto_write = True
+        if(show):
+            self._pixels = copy.deepcopy(self._colors)
+            self.show()
