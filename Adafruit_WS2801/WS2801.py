@@ -189,7 +189,7 @@ class WS2801Pixels(object):
             self.show()
     
     def turn_on_all(self):
-        self.fill([646464])
+        self.store_colors([646464])
         for n in range(self._offset, self._count):
             self.set_pixel_rgb(n, self._colors[n*3], self._colors[n*3+1], self._colors[n*3+2])
         if self._auto_write:
