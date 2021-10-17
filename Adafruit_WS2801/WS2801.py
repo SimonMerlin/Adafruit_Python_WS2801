@@ -156,6 +156,7 @@ class WS2801Pixels(object):
         b = color
         # Note the color components will be truncated to 8-bits in the
         # set_pixel_rgb function call.
+        print(r, g, b)
         self.store_pixel_color_rgb(n, r, g, b)
     
     def store_pixel_color_rgb(self, n, r, g, b):
@@ -190,8 +191,6 @@ class WS2801Pixels(object):
             self.show()
     
     def turn_on_all(self):
-        self.store_colors([0x646464])
-        print(self._colors)
         for n in range(self._offset, self._count):
             self.set_pixel_rgb(n, self._colors[n*3], self._colors[n*3+1], self._colors[n*3+2])
         if self._auto_write:
