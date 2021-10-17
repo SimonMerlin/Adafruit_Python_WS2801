@@ -22,7 +22,7 @@
 import time
 import copy
 import Adafruit_GPIO.SPI as SPI
-
+import sys
 
 def RGB_to_color(r, g, b):
     """Convert three 8-bit red, green, blue component values to a single 24-bit
@@ -90,6 +90,8 @@ class WS2801Pixels(object):
         """Push the current pixel values out to the hardware.  Must be called to
         actually change the pixel colors.
         """
+        print("SHOW")
+        sys.stdout.flush()
         if(self._brightness < 1.0):
             for i in range(self._offset, self._count):
                 self.set_pixel_rgb(i, int(self._pixels[i*3]*self._brightness), int(self._pixels[i*3+1]*self._brightness), int(self._pixels[i*3+2]*self._brightness))
