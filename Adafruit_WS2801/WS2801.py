@@ -208,13 +208,13 @@ class WS2801Pixels(object):
             for p in range(self._offset, self._count):
                 pos = ((p*256 // self.count()) + j)
                 if p < 85:
-                    self.store_pixel_color_rgb(pos, (pos*3), (255-pos*3), 0)
+                    self.store_pixel_color_rgb(p, (pos*3), (255-pos*3), 0)
                 elif pos < 170:
                     pos -= 85
-                    self.store_pixel_color_rgb(pos, (255-pos*3), 0, (pos*3))
+                    self.store_pixel_color_rgb(p, (255-pos*3), 0, (pos*3))
                 else:
                     pos -= 170
-                    self.store_pixel_color_rgb(pos, 0, (pos*3), (255-pos*3))
+                    self.store_pixel_color_rgb(p, 0, (pos*3), (255-pos*3))
         self._auto_write = True
         if(show):
             self._pixels = copy.deepcopy(self._colors)
