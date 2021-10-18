@@ -198,8 +198,8 @@ class WS2801Pixels(object):
         self._auto_write = False
         for j in range(256):
             for p in range(self._offset, self._count):
-                pos = (((p+shift)*256 // self.count()) + j) % 256
-                if p < 85:
+                pos = (((p+shift)*256 // self._count) + j) % 256
+                if pos < 85:
                     self.store_pixel_color_rgb(p, (pos*3), (255-pos*3), 0)
                 elif pos < 170:
                     pos -= 85
