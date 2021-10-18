@@ -196,17 +196,17 @@ class WS2801Pixels(object):
     
     def apply_rainbow(self, shift=0, show=False):
         self._auto_write = False
-        for j in range(256):
+        for j in range(96):
             for p in range(self._offset, self._count):
-                pos = (((p+shift)*256 // self._count) + j) % 256
-                if pos < 85:
-                    self.store_pixel_color_rgb(p, (pos*3), (255-pos*3), 0)
-                elif pos < 170:
-                    pos -= 85
-                    self.store_pixel_color_rgb(p, (255-pos*3), 0, (pos*3))
+                pos = (((p+shift)*96 // self._count) + j) % 96
+                if pos < 31:
+                    self.store_pixel_color_rgb(p, (pos*3), (95-pos*3), 0)
+                elif pos < 62:
+                    pos -= 31
+                    self.store_pixel_color_rgb(p, (95-pos*3), 0, (pos*3))
                 else:
-                    pos -= 170
-                    self.store_pixel_color_rgb(p, 0, (pos*3), (255-pos*3))
+                    pos -= 62
+                    self.store_pixel_color_rgb(p, 0, (pos*3), (95-pos*3))
         self._auto_write = True
         if(show):
             self._pixels = copy.deepcopy(self._colors)
