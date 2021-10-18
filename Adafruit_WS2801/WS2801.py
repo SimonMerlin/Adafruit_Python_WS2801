@@ -182,13 +182,9 @@ class WS2801Pixels(object):
     
     def turn_on(self, n):
         self.set_pixel_rgb(n, self._colors[n*3], self._colors[n*3+1], self._colors[n*3+2])
-        if self._auto_write:
-            self.show()
     
     def turn_off(self, n):
         self.set_pixel(n, 0)
-        if self._auto_write:
-            self.show()
     
     def turn_on_all(self):
         for n in range(self._offset, self._count):
