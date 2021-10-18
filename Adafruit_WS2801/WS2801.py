@@ -90,6 +90,9 @@ class WS2801Pixels(object):
         """Push the current pixel values out to the hardware.  Must be called to
         actually change the pixel colors.
         """
+        if(self._brightness < 1.0):
+            for i in range(self._offset, self._count):
+                self.set_pixel_rgb(i, int(self._pixels[i*3]*self._brightness), int(self._pixels[i*3+1]*self._brightness), int(self._pixels[i*3+2]*self._brightness))
         self._spi.write(self._pixels)
         time.sleep(0.002)
 
@@ -113,9 +116,9 @@ class WS2801Pixels(object):
         see the LEDs change color!
         """
         assert 0 <= n < self._count, 'Pixel n outside the count of pixels!'
-        self._pixels[n*3]   = int((r & 0xFF)*self._brightness)
-        self._pixels[n*3+1] = int((g & 0xFF)*self._brightness)
-        self._pixels[n*3+2] = int((b & 0xFF)*self._brightness)
+        self._pixels[n*3]   = r & 0xFF
+        self._pixels[n*3+1] = g & 0xFF
+        self._pixels[n*3+2] = b & 0xFF
 
     def get_pixel(self, n):
         """Retrieve the 24-bit RGB color of the specified pixel n."""
@@ -160,7 +163,6 @@ class WS2801Pixels(object):
         self._colors[n*3]   = r & 0xFF
         self._colors[n*3+1] = g & 0xFF
         self._colors[n*3+2] = b & 0xFF
-        print(r & 0xFF, g & 0xFF, b & 0xFF)
     
     def fill(self, colors=[0]):
         """Set the specified pixel n to the provided 24-bit RGB color.  Note you
@@ -196,7 +198,7 @@ class WS2801Pixels(object):
         self._auto_write = False
         for j in range(256):
             for p in range(self._offset, self._count):
-                pos = ((p*256 // self.count()) + j)
+                pos = (((p+shift)*256 // self.count()) + j)
                 if p < 85:
                     self.store_pixel_color_rgb(p, (pos*3), (255-pos*3), 0)
                 elif pos < 170:
