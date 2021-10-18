@@ -199,13 +199,13 @@ class WS2801Pixels(object):
         for j in range(96):
             for p in range(self._offset, self._count):
                 pos = (((p+shift)*96 // self._count) + j) % 96
-                if pos < 31:
+                if pos < 32:
                     self.store_pixel_color_rgb(p, (pos*3), (95-pos*3), 0)
-                elif pos < 62:
-                    pos -= 31
+                elif pos < 64:
+                    pos -= 32
                     self.store_pixel_color_rgb(p, (95-pos*3), 0, (pos*3))
                 else:
-                    pos -= 62
+                    pos -= 64
                     self.store_pixel_color_rgb(p, 0, (pos*3), (95-pos*3))
         self._auto_write = True
         if(show):
