@@ -134,6 +134,13 @@ class WS2801Pixels(object):
         """
         assert 0 <= n < self._count, 'Pixel n outside the count of pixels!'
         return self._pixels[n*3], self._pixels[n*3+1], self._pixels[n*3+2]
+    
+    def get_stored_pixel_rgb(self, n):
+        """Retrieve the 8-bit red, green, blue component color values of the
+        specified pixel n.  Will return a 3-tuple of red, green, blue data.
+        """
+        assert 0 <= n < self._count, 'Pixel n outside the count of pixels!'
+        return self._colors[n*3], self._colors[n*3+1], self._colors[n*3+2]
 
     def store_colors(self, colors=[0], show=False):
         """Set all pixels to the provided 24-bit RGB color value.  Note you
