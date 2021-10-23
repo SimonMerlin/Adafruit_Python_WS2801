@@ -145,9 +145,12 @@ class WS2801Pixels(object):
     def store_colors(self, colors=[0], show=False):
         """Set all pixels to the provided 24-bit RGB color value.  Note you
         MUST call show() after setting pixels to see the LEDs change!"""
-        for i in range(self._offset, self._count):
-            self.store_pixel_color(i, colors[i%(len(colors))])
-        self._auto_write = True
+        if "MUTICOLOR" in colors:
+            self.apply_rainbow()
+        else:
+            for i in range(self._offset, self._count):
+                self.store_pixel_color(i, colors[i%(len(colors))])
+            self._auto_write = True
         if(show):
             self._pixels = copy.deepcopy(self._colors)
             self.show()
