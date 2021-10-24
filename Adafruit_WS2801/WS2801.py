@@ -22,7 +22,6 @@
 import time
 import copy
 import Adafruit_GPIO.SPI as SPI
-import sys
 
 def RGB_to_color(r, g, b):
     """Convert three 8-bit red, green, blue component values to a single 24-bit
